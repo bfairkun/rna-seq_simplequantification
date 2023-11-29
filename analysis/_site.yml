@@ -1,0 +1,17 @@
+name: "RNA-seq_SimpleQuantification"
+output_dir: ../docs
+navbar:
+  title: "RNA-seq_SimpleQuantification"
+  left:
+  - text: Home
+    href: index.html
+  - text: About
+    href: about.html
+  - text: License
+    href: license.html
+output:
+  workflowr::wflow_html:
+    toc: yes
+    toc_float: no
+    theme: cosmo
+    highlight: textmate
