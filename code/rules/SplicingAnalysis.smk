@@ -15,14 +15,6 @@ rule ExtractJuncs:
         (regtools junctions extract -m 20 -s {params.strand} {input.bam} > {output}) &> {log}
         """
 
-rule Download_hg38_basic_gtf:
-    output:
-        "Gencode/hg38_Primary_basic_v44.gtf"
-    shell:
-        """
-        wget -O- https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_44/gencode.v44.primary_assembly.basic.annotation.gtf.gz | zcat > {output.chr_gtf}
-        """
-
 
 rule annotate_juncfiles:
     input:
@@ -56,3 +48,18 @@ rule ConcatJuncFilesAndKeepUniq:
         Rscript scripts/Collapse_Juncsfiles.R {output} {input} &> {log}
         """
 
+rule AnnotateConcatedUniqJuncFile_basic:
+    input:
+        junc = "SplicingAnalysis/ObservedJuncsAnnotations/{GenomeName}.uniq.junc",
+        gtf = config['GenomesPrefix'] + "{GenomeName}/Reference.basic.gtf",
+        fa = config['GenomesPrefix'] + "{GenomeName}/Reference.fa"
+    output:
+        "SplicingAnalysis/ObservedJuncsAnnotations/{GenomeName}.uniq.annotated.tsv.gz"
+    log:
+        "logs/AnnotateConcatedUniqJuncFile_hg38Basic.{GenomeName}.log"
+    conda:
+        "../envs/regtools.yml"
+    shell:
+        """
+        (regtools junctions annotate {input.junc} {input.fa} {input.gtf} | gzip - > {output} ) &> {log}
+        """

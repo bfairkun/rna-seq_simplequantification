@@ -13,6 +13,22 @@ rule DownloadFastaAndGtf:
         wget -O- {params.gtf_link} | zcat > {output.gtf}
         """
 
+rule GetBasicGtf:
+    """
+    Some analysis are better done with just 'basic' tagged transcripts,
+    transcript structures thought to encode functional transcripts. This shell
+    command works with Gencode formatted gtf, haven't looked at Ensembl gtfs
+    """
+    input:
+        gtf = config['GenomesPrefix'] + "{GenomeName}/Reference.gtf"
+    output:
+        gtf = config['GenomesPrefix'] + "{GenomeName}/Reference.basic.gtf"
+    shell:
+        """
+        awk '/^##/ || /tag "basic"/ || $3=="gene"' {input.gtf} > {output.gtf}
+        """
+
+
 rule indexHg38Ref:
     input:
         fa = config['GenomesPrefix'] + "{GenomeName}/Reference.fa",

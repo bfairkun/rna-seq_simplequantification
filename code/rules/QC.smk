@@ -1,7 +1,7 @@
 
 rule QualimapRnaseq:
     input:
-        gtf="/project2/yangili1/bjf79/ChromatinSplicingQTLs/code/ReferenceGenome/Annotations/gencode.v34.chromasomal.basic.annotation.gtf",
+        gtf = FillGenomeNameInFormattedString(config['GenomesPrefix'] + "{GenomeName}/Reference.gtf"),
         bam="Alignments/STAR_Align/{sample}/Aligned.sortedByCoord.out.bam",
         bai="Alignments/STAR_Align/{sample}/Aligned.sortedByCoord.out.bam.bai"
     output:
@@ -20,18 +20,18 @@ rule QualimapRnaseq:
         qualimap rnaseq -bam {input.bam} -gtf {input.gtf} {params.extra} --java-mem-size=12G -outdir QC/QualimapRnaseq/{wildcards.sample}/ &> {log}
         """
 
-# rule MultiQC:
-#     input:
-#         expand("Alignments/STAR_Align/{sample}/Aligned.sortedByCoord.out.bam", sample= samples.index.unique()),
-#         expand("QC/QualimapRnaseq/{sample}/rnaseq_qc_results.txt", sample=samples.index),
-#         expand("FastqFastp/{sample}.fastp.json", sample=chRNA_samples.index)
-#     log: "logs/Multiqc.log"
-#     output:
-#         "Multiqc/multiqc_report.html"
-#     shell:
-#         """
-#         multiqc -f -o Multiqc/ Alignments/STAR_Align/ QC/QualimapRnaseq/ FastqFastp/ &> {log}
-#         """
+rule MultiQC:
+    input:
+        expand("Alignments/STAR_Align/{sample}/Aligned.sortedByCoord.out.bam", sample= samples.index.unique()),
+        expand("QC/QualimapRnaseq/{sample}/rnaseq_qc_results.txt", sample=samples.index.unique()),
+        expand("FastqFastp/{sample}.fastp.json", sample=samples.index.unique())
+    log: "logs/Multiqc.log"
+    output:
+        "Multiqc/multiqc_report.html"
+    shell:
+        """
+        multiqc -f -o Multiqc/ Alignments/STAR_Align/ QC/QualimapRnaseq/ FastqFastp/ &> {log}
+        """
 
 
 
